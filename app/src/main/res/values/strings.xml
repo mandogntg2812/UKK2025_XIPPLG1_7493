@@ -1,3 +1,8 @@
 <resources>
     <string name="app_name">ukk_armando</string>
+    <string name="welcome_title"><b>TO DO LIST</b></string>
+    <string name="welcome_teks"><u>BUAT TUGAS</u><b>TEPAT WAKTU!</b></string>
+    <string name="description"><b>TO DO LIST</b> bantu kamu bikin jadwal tugas jadi lebih gampang</string>
+    <string name="waktu">Waktu</string>
+
 </resources>
