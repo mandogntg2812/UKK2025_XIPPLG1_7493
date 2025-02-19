@@ -1,53 +1,30 @@
-<?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".MainActivity">
+    android:orientation="vertical"
+    android:padding="16dp">
 
     <Button
-        android:id="@+id/btnCreateTask"
-        android:layout_width="0dp"
+        android:id="@+id/createTaskButton"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Buat Kegiatan"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        android:layout_marginTop="50dp"
-        android:padding="16dp"/>
+        android:text="Buat Kegiatan"/>
 
     <Button
-        android:id="@+id/btnTaskList"
-        android:layout_width="0dp"
+        android:id="@+id/taskListButton"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Daftar Kegiatan"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/btnCreateTask"
-        android:layout_marginTop="16dp"
-        android:padding="16dp"/>
+        android:text="Daftar Kegiatan"/>
 
     <Button
-        android:id="@+id/btnHistory"
-        android:layout_width="0dp"
+        android:id="@+id/historyButton"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Histori Kegiatan"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/btnTaskList"
-        android:layout_marginTop="16dp"
-        android:padding="16dp"/>
+        android:text="Histori Kegiatan"/>
 
     <Button
-        android:id="@+id/btnProfile"
-        android:layout_width="0dp"
+        android:id="@+id/profileButton"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Profil"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/btnHistory"
-        android:layout_marginTop="16dp"
-        android:padding="16dp"/>
-
-</androidx.constraintlayout.widget.ConstraintLayout>
+        android:text="Profil"/>
+</LinearLayout>

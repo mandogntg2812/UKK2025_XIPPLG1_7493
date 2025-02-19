@@ -1,5 +1,6 @@
 package com.example.ukk_armando
 
+
 import android.content.Intent
 import android.os.Bundle
 import android.widget.Button
@@ -11,24 +12,20 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        findViewById<Button>(R.id.btnCreateTask).setOnClickListener {
-            val intent = Intent(this, CreateTaskActivity::class.java)
-            startActivity(intent)
+        findViewById<Button>(R.id.createTaskButton).setOnClickListener {
+            startActivity(Intent(this, CreateTaskActivity::class.java))
         }
 
-        findViewById<Button>(R.id.btnTaskList).setOnClickListener {
-            val intent = Intent(this, TaskListActivity::class.java)
-            startActivity(intent)
+        findViewById<Button>(R.id.taskListButton).setOnClickListener {
+            startActivity(Intent(this, TaskListActivity::class.java))
         }
 
-        findViewById<Button>(R.id.btnHistory).setOnClickListener {
-            val intent = Intent(this, HistoryActivity::class.java)
-            startActivity(intent)
+        findViewById<Button>(R.id.historyButton).setOnClickListener {
+            startActivity(Intent(this, HistoryActivity::class.java))
         }
 
-        findViewById<Button>(R.id.btnProfile).setOnClickListener {
-            val intent = Intent(this, ProfileActivity::class.java)
-            startActivity(intent)
+        findViewById<Button>(R.id.profileButton).setOnClickListener {
+            startActivity(Intent(this, ProfileActivity::class.java))
         }
     }
 }

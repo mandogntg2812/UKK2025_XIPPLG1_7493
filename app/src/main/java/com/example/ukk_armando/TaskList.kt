@@ -6,54 +6,58 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 
-class TaskActivity : AppCompatActivity() {
+class TaskListActivity : AppCompatActivity() {
 
-    private lateinit var taskRecyclerView: RecyclerView
-    private val taskList = mutableListOf<Task>() // List of tasks
+    private lateinit var recyclerView: RecyclerView
+    private lateinit var taskAdapter: TaskAdapter
+    private var taskList = ArrayList<Task>()
+    private lateinit var dbHelper: DatabaseHelper
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_task_list)
 
-        taskRecyclerView = findViewById(R.id.recyclerViewTasks)
-        taskRecyclerView.layoutManager = LinearLayoutManager(this)
+        dbHelper = DatabaseHelper(this)
 
-        // Example data
-        taskList.add(Task("Task 1", "Monday", false))
-        taskList.add(Task("Task 2", "Tuesday", false))
-        taskList.add(Task("Task 3", "Wednesday", false))
+        // Inisialisasi RecyclerView
+        recyclerView = findViewById(R.id.taskRecyclerView)
 
-        val adapter = TaskAdapter(
+        // Inisialisasi adapter dengan memberikan context dan taskList
+        taskAdapter = TaskAdapter(
             this,
             taskList,
-            onTaskCompleted = { task -> taskCompleted(task) },
-            onEditClicked = { task -> editTask(task) },
-            onDeleteClicked = { task -> deleteTask(task) }
+            onTaskClicked = { task ->
+                // Placeholder jika task diklik
+            },
+            onTaskDeleted = { task ->
+                // Memindahkan task ke histori ketika dihapus
+                dbHelper.moveToHistory(task.id)
+                taskList.remove(task)
+                taskAdapter.notifyDataSetChanged()
+                Toast.makeText(this, "Tugas dipindahkan ke histori", Toast.LENGTH_SHORT).show()
+            },
+            onTaskCompleted = { task ->
+                // Memperbarui status tugas menjadi selesai dan memindahkan ke histori
+                task.isCompleted = true
+                dbHelper.updateTask(task)  // Update status tugas ke selesai
+                dbHelper.moveToHistory(task.id)  // Memindahkan task ke histori
+                taskList.remove(task)
+                taskAdapter.notifyDataSetChanged()
+                Toast.makeText(this, "Tugas dipindahkan ke histori", Toast.LENGTH_SHORT).show()
+            }
         )
 
-        taskRecyclerView.adapter = adapter
+        recyclerView.layoutManager = LinearLayoutManager(this)
+        recyclerView.adapter = taskAdapter
+
+        // Memuat daftar tugas aktif
+        loadActiveTasks()
     }
 
-    private fun taskCompleted(task: Task) {
-        // Mark the task as completed and move it to the HistoryActivity
-        task.isCompleted = true
-        Toast.makeText(this, "Task marked as completed", Toast.LENGTH_SHORT).show()
-
-        // Move task to History (or remove from current list)
-        taskList.remove(task)
-        taskList.add(task)
-        taskRecyclerView.adapter?.notifyDataSetChanged()
-    }
-
-    private fun editTask(task: Task) {
-        // Implement editing task here
-        Toast.makeText(this, "Editing task: ${task.description}", Toast.LENGTH_SHORT).show()
-    }
-
-    private fun deleteTask(task: Task) {
-        // Remove the task from the list
-        taskList.remove(task)
-        taskRecyclerView.adapter?.notifyDataSetChanged()
-        Toast.makeText(this, "Task deleted", Toast.LENGTH_SHORT).show()
+    private fun loadActiveTasks() {
+        // Mengambil tugas yang belum dipindahkan ke histori (isHistory = 0)
+        taskList.clear()
+        taskList.addAll(dbHelper.getActiveTasks())  // Mengambil tugas aktif
+        taskAdapter.notifyDataSetChanged()
     }
 }

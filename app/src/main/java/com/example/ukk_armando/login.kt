@@ -1,55 +1,44 @@
 package com.example.ukk_armando
 
+import android.content.Intent
 import android.os.Bundle
-import android.text.TextUtils
 import android.widget.Button
 import android.widget.EditText
+import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 
 class LoginActivity : AppCompatActivity() {
 
-    private lateinit var etEmail: EditText
-    private lateinit var etPassword: EditText
-    private lateinit var btnLogin: Button
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_login)
 
-        etEmail = findViewById(R.id.etEmail)
-        etPassword = findViewById(R.id.etPassword)
-        btnLogin = findViewById(R.id.btnLogin)
+        val email = findViewById<EditText>(R.id.etEmail)
+        val password = findViewById<EditText>(R.id.etPassword)
+        val loginButton = findViewById<Button>(R.id.btnLogin)
+        val registerLink = findViewById<TextView>(R.id.tvRegister)
 
-        btnLogin.setOnClickListener {
-            val email = etEmail.text.toString().trim()
-            val password = etPassword.text.toString().trim()
+        loginButton.setOnClickListener {
+            // Handle login process
+            val enteredEmail = email.text.toString()
+            val enteredPassword = password.text.toString()
 
-            if (validateInput(email, password)) {
-                // Login logic here
-                Toast.makeText(this, "Login successful", Toast.LENGTH_SHORT).show()
+            // Check login credentials (for simplicity using SharedPreferences)
+            val sharedPreferences = getSharedPreferences("user_prefs", MODE_PRIVATE)
+            val savedEmail = sharedPreferences.getString("email", null)
+            val savedPassword = sharedPreferences.getString("password", null)
+
+            if (enteredEmail == savedEmail && enteredPassword == savedPassword) {
+                startActivity(Intent(this, MainActivity::class.java))
+                finish()
+            } else {
+                Toast.makeText(this, "Invalid login", Toast.LENGTH_SHORT).show()
             }
         }
-    }
 
-    private fun validateInput(email: String, password: String): Boolean {
-        // Check if email and password are not empty
-        if (TextUtils.isEmpty(email) || TextUtils.isEmpty(password)) {
-            Toast.makeText(this, "Please enter both email and password", Toast.LENGTH_SHORT).show()
-            return false
+        registerLink.setOnClickListener {
+            startActivity(Intent(this, RegisterActivity::class.java))
         }
-
-        // Check if email and password contain only lowercase letters
-        if (!email.matches("^[a-z]+$".toRegex())) {
-            Toast.makeText(this, "Email must only contain lowercase letters", Toast.LENGTH_SHORT).show()
-            return false
-        }
-
-        if (!password.matches("^[a-z]+$".toRegex())) {
-            Toast.makeText(this, "Password must only contain lowercase letters", Toast.LENGTH_SHORT).show()
-            return false
-        }
-
-        return true
     }
 }

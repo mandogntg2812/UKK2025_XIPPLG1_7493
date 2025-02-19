@@ -5,75 +5,95 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.CheckBox
+import android.widget.ImageButton
 import android.widget.TextView
 import android.widget.Toast
 import androidx.recyclerview.widget.RecyclerView
-import androidx.appcompat.app.AlertDialog
 
 class TaskAdapter(
     private val context: Context,
-    private val taskList: MutableList<Task>,
-    private val onTaskCompleted: (Task) -> Unit,
-    private val onEditClicked: (Task) -> Unit,
-    private val onDeleteClicked: (Task) -> Unit
+    private var taskList: ArrayList<Task>,  // taskList yang bisa diupdate
+    private val onTaskClicked: (Task) -> Unit, // Callback untuk mengedit task
+    private val onTaskDeleted: (Task) -> Unit, // Callback untuk menghapus task
+    private val onTaskCompleted: (Task) -> Unit // Callback untuk menandai task selesai
 ) : RecyclerView.Adapter<TaskAdapter.TaskViewHolder>() {
 
+    inner class TaskViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+        val descriptionTextView: TextView = itemView.findViewById(R.id.description)
+        val dateTextView: TextView = itemView.findViewById(R.id.date)
+        val timeTextView: TextView = itemView.findViewById(R.id.time)
+        val categoryTextView: TextView = itemView.findViewById(R.id.category)
+        val checkbox: CheckBox = itemView.findViewById(R.id.checkBox)
+        val editButton: ImageButton = itemView.findViewById(R.id.editButton)
+        val deleteButton: ImageButton = itemView.findViewById(R.id.deleteButton)
+
+        init {
+            // Menghandle klik pada item untuk mengedit task
+            itemView.setOnClickListener {
+                val task = taskList[adapterPosition]
+                onTaskClicked(task)
+            }
+
+            // Menghandle klik pada tombol edit untuk mengedit task
+            editButton.setOnClickListener {
+                val task = taskList[adapterPosition]
+                onTaskClicked(task)  // Memanggil callback untuk mengedit task
+            }
+
+            // Menghandle klik pada tombol delete untuk menghapus task
+            deleteButton.setOnClickListener {
+                val task = taskList[adapterPosition]
+                onTaskDeleted(task)  // Memanggil callback untuk menghapus task
+            }
+
+            // Menghandle perubahan status checkbox (menandai task selesai)
+            checkbox.setOnCheckedChangeListener { _, isChecked ->
+                val task = taskList[adapterPosition]
+                task.isCompleted = isChecked
+                onTaskCompleted(task) // Memanggil callback untuk menandai task selesai
+            }
+        }
+    }
+
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TaskViewHolder {
-        val view = LayoutInflater.from(parent.context).inflate(R.layout.item_task, parent, false)
+        val view = LayoutInflater.from(context).inflate(R.layout.item_task, parent, false)
         return TaskViewHolder(view)
     }
 
     override fun onBindViewHolder(holder: TaskViewHolder, position: Int) {
         val task = taskList[position]
-        holder.bind(task)
+
+        holder.descriptionTextView.text = task.description
+        holder.dateTextView.text = task.date
+        holder.timeTextView.text = task.time
+        holder.categoryTextView.text = task.category
+
+        // Menandai task yang sudah selesai dengan centang pada checkbox
+        holder.checkbox.isChecked = task.isCompleted
     }
 
-    override fun getItemCount(): Int = taskList.size
+    override fun getItemCount(): Int {
+        return taskList.size
+    }
 
-    inner class TaskViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        private val taskDescription: TextView = itemView.findViewById(R.id.tvTaskDescription)
-        private val taskDay: TextView = itemView.findViewById(R.id.tvTaskDay)
-        private val checkBox: CheckBox = itemView.findViewById(R.id.cbTask)
+    // Fungsi untuk memperbarui daftar task setelah ada perubahan
+    fun updateTaskList(newTaskList: ArrayList<Task>) {
+        taskList = newTaskList
+        notifyDataSetChanged()
+    }
 
-        fun bind(task: Task) {
-            taskDescription.text = task.description
-            taskDay.text = task.day
+    // Fungsi untuk menghapus task dari list
+    fun deleteTask(task: Task) {
+        taskList.remove(task)
+        notifyDataSetChanged()
+    }
 
-            // Set checkbox status
-            checkBox.isChecked = task.isCompleted
-            checkBox.setOnCheckedChangeListener { _, isChecked ->
-                if (isChecked) {
-                    // Task completed
-                    onTaskCompleted(task)
-                }
-            }
-
-            // Handle item click for Edit/Delete
-            itemView.setOnClickListener {
-                showTaskOptions(task)
-            }
-        }
-
-        private fun showTaskOptions(task: Task) {
-            val options = arrayOf("Edit", "Delete")
-            val builder = AlertDialog.Builder(context)
-            builder.setItems(options) { _, which ->
-                when (which) {
-                    0 -> onEditClicked(task) // Edit option
-                    1 -> confirmDelete(task) // Delete option
-                }
-            }
-            builder.show()
-        }
-
-        private fun confirmDelete(task: Task) {
-            AlertDialog.Builder(context)
-                .setMessage("Are you sure you want to delete this task?")
-                .setPositiveButton("Yes") { _, _ ->
-                    onDeleteClicked(task)
-                }
-                .setNegativeButton("No", null)
-                .show()
-        }
+    // Fungsi untuk memperbarui status task sebagai selesai
+    fun updateTaskCompletion(task: Task) {
+        // Menyimpan perubahan ke database (pastikan Anda sudah menambahkan metode updateTaskCompletion di DatabaseHelper)
+        DatabaseHelper(context).updateTask(task)
+        Toast.makeText(context, "Tugas selesai!", Toast.LENGTH_SHORT).show()
     }
 }
+

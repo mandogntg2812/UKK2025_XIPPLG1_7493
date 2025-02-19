@@ -4,5 +4,12 @@
     <string name="welcome_teks"><u>BUAT TUGAS</u> <b>TEPAT WAKTU!</b></string>
     <string name="description"><b>TO DO LIST</b> bantu kamu bikin jadwal tugas jadi lebih gampang</string>
     <string name="waktu">Waktu</string>
+    <!-- String untuk menambah tugas -->
+    <string name="add_task">Tambah Tugas</string>
+
+    <!-- String untuk menghapus tugas -->
+    <string name="delete_task">Hapus Tugas</string>
+
+    <string name="edit_task">Edit Tugas</string>
 
 </resources>

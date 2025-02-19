@@ -1,35 +1,58 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content">
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="16dp">
 
+    <!-- TextView untuk deskripsi tugas -->
+    <TextView
+        android:id="@+id/description"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Deskripsi Tugas" />
+
+    <!-- TextView untuk tanggal tugas -->
+    <TextView
+        android:id="@+id/date"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Tanggal" />
+
+    <!-- TextView untuk waktu tugas -->
+    <TextView
+        android:id="@+id/time"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Waktu" />
+
+    <!-- TextView untuk kategori tugas -->
+    <TextView
+        android:id="@+id/category"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Kategori" />
+
+    <!-- Checkbox untuk menandai apakah tugas selesai atau belum -->
     <CheckBox
-        android:id="@+id/cbTask"
+        android:id="@+id/checkBox"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Task"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        android:padding="16dp"/>
+        android:text="Tugas selesai" />
 
-    <TextView
-        android:id="@+id/tvTaskDescription"
+    <!-- Tombol Edit -->
+    <ImageButton
+        android:id="@+id/editButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Task description"
-        android:textSize="16sp"
-        app:layout_constraintStart_toEndOf="@id/cbTask"
-        app:layout_constraintTop_toTopOf="parent"
-        android:layout_marginStart="8dp"
-        android:padding="16dp" />
+        android:src="@android:drawable/ic_menu_edit"
+        android:contentDescription="Edit Task" />
 
-    <TextView
-        android:id="@+id/tvTaskDay"
+    <!-- Tombol Delete -->
+    <ImageButton
+        android:id="@+id/deleteButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Day"
-        app:layout_constraintStart_toEndOf="@id/tvTaskDescription"
-        app:layout_constraintTop_toTopOf="parent"
-        android:padding="16dp" />
-
-</androidx.constraintlayout.widget.ConstraintLayout>
+        android:src="@android:drawable/ic_menu_delete"
+        android:contentDescription="Delete Task" />
+</LinearLayout>

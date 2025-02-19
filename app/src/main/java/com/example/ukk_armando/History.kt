@@ -1,36 +1,52 @@
 package com.example.ukk_armando
 
 import android.os.Bundle
-import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 
 class HistoryActivity : AppCompatActivity() {
 
-    private lateinit var tvHistory: TextView
-    private val completedTaskList = mutableListOf<Task>() // This will hold completed tasks.
+    private lateinit var recyclerView: RecyclerView
+    private lateinit var historyAdapter: TaskAdapter
+    private var historyList = ArrayList<Task>()
+    private lateinit var dbHelper: DatabaseHelper
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_history)
 
-        tvHistory = findViewById(R.id.tvHistory)
+        dbHelper = DatabaseHelper(this)
 
-        // Example data, this can be passed from MainActivity or shared ViewModel
-        completedTaskList.add(Task("Task 1", "Monday", true))
-        completedTaskList.add(Task("Task 2", "Tuesday", true))
-        completedTaskList.add(Task("Task 3", "Wednesday", true))
+        // Inisialisasi RecyclerView
+        recyclerView = findViewById(R.id.historyRecyclerView)
 
-        showCompletedTasks()
+        // Inisialisasi adapter dengan memberikan context dan historyList
+        historyAdapter = TaskAdapter(
+            this,
+            historyList,
+            onTaskClicked = { task ->
+                // Placeholder jika task diklik
+            },
+            onTaskDeleted = { task ->
+                // Placeholder jika task dihapus (misalnya dari histori)
+            },
+            onTaskCompleted = { task ->
+                // Placeholder jika task diselesaikan (tidak ada aksi karena sudah dipindahkan ke histori)
+            }
+        )
+
+        recyclerView.layoutManager = LinearLayoutManager(this)
+        recyclerView.adapter = historyAdapter
+
+        // Memuat histori tugas
+        loadHistory()
     }
 
-    private fun showCompletedTasks() {
-        if (completedTaskList.isEmpty()) {
-            tvHistory.text = "No completed tasks yet."
-        } else {
-            val historyText = completedTaskList.joinToString("\n") { task ->
-                "${task.description} on ${task.day}"
-            }
-            tvHistory.text = historyText
-        }
+    private fun loadHistory() {
+        // Mengambil tugas yang sudah dipindahkan ke histori (isHistory = 1)
+        historyList.clear()
+        historyList.addAll(dbHelper.getHistoryTasks())
+        historyAdapter.notifyDataSetChanged()
     }
 }
