@@ -1,177 +1,191 @@
 package com.example.ukk_armando
 
-import android.annotation.SuppressLint
 import android.content.ContentValues
 import android.content.Context
 import android.database.Cursor
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
+import android.util.Log
 
 class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, null, DATABASE_VERSION) {
 
     companion object {
-        const val DATABASE_NAME = "task_db"
-        const val DATABASE_VERSION = 1
-        const val TABLE_TASKS = "tasks"
+        private const val DATABASE_NAME = "tasks.db"
+        private const val DATABASE_VERSION = 1
 
-        // Kolom dalam tabel tasks
-        const val COL_ID = "id"
-        const val COL_DESCRIPTION = "description"
-        const val COL_DATE = "date"
-        const val COL_TIME = "time"
-        const val COL_CATEGORY = "category"
-        const val COL_IS_COMPLETED = "isCompleted"
-        const val COL_IS_HISTORY = "isHistory"
+        private const val TABLE_TASKS = "tasks"
+        private const val COLUMN_ID = "id"
+        private const val COLUMN_DESCRIPTION = "description"
+        private const val COLUMN_DATE = "date"
+        private const val COLUMN_TIME = "time"
+        private const val COLUMN_CATEGORY = "category"
+        private const val COLUMN_IS_COMPLETED = "is_completed"
+        private const val COLUMN_IS_HISTORY = "is_history"
     }
 
-    override fun onCreate(db: SQLiteDatabase) {
-        // Membuat tabel tasks
-        val createTableQuery = """
+    override fun onCreate(db: SQLiteDatabase?) {
+        val CREATE_TASKS_TABLE = """
             CREATE TABLE $TABLE_TASKS (
-                $COL_ID INTEGER PRIMARY KEY AUTOINCREMENT,
-                $COL_DESCRIPTION TEXT,
-                $COL_DATE TEXT,
-                $COL_TIME TEXT,
-                $COL_CATEGORY TEXT,
-                $COL_IS_COMPLETED INTEGER,
-                $COL_IS_HISTORY INTEGER
-            )
+                $COLUMN_ID INTEGER PRIMARY KEY AUTOINCREMENT,
+                $COLUMN_DESCRIPTION TEXT,
+                $COLUMN_DATE TEXT,
+                $COLUMN_TIME TEXT,
+                $COLUMN_CATEGORY TEXT,
+                $COLUMN_IS_COMPLETED INTEGER,
+                $COLUMN_IS_HISTORY INTEGER
+            );
         """
-        db.execSQL(createTableQuery)
+        db?.execSQL(CREATE_TASKS_TABLE)
     }
 
-    override fun onUpgrade(db: SQLiteDatabase, oldVersion: Int, newVersion: Int) {
-        // Menangani perubahan skema database (jika ada)
-        db.execSQL("DROP TABLE IF EXISTS $TABLE_TASKS")
+    override fun onUpgrade(db: SQLiteDatabase?, oldVersion: Int, newVersion: Int) {
+        db?.execSQL("DROP TABLE IF EXISTS $TABLE_TASKS")
         onCreate(db)
     }
 
-    // Menambahkan tugas baru ke dalam database
-    fun addTask(task: Task) {
-        val db = writableDatabase
-        val values = ContentValues().apply {
-            put(COL_DESCRIPTION, task.description)
-            put(COL_DATE, task.date)
-            put(COL_TIME, task.time)
-            put(COL_CATEGORY, task.category)
-            put(COL_IS_COMPLETED, if (task.isCompleted) 1 else 0)
-            put(COL_IS_HISTORY, if (task.isHistory) 1 else 0)
-        }
-        db.insert(TABLE_TASKS, null, values)
+    // Insert task
+    fun insertTask(task: Task): Long {
+        val db = this.writableDatabase
+        val values = ContentValues()
+
+        values.put(COLUMN_DESCRIPTION, task.description)
+        values.put(COLUMN_DATE, task.date)
+        values.put(COLUMN_TIME, task.time)
+        values.put(COLUMN_CATEGORY, task.category)
+        values.put(COLUMN_IS_COMPLETED, if (task.isCompleted) 1 else 0)
+        values.put(COLUMN_IS_HISTORY, if (task.isHistory) 1 else 0)
+
+        return db.insert(TABLE_TASKS, null, values)
     }
 
-    // Memperbarui tugas yang ada di database
-    fun updateTask(task: Task) {
-        val db = writableDatabase
-        val values = ContentValues().apply {
-            put(COL_DESCRIPTION, task.description)
-            put(COL_DATE, task.date)
-            put(COL_TIME, task.time)
-            put(COL_CATEGORY, task.category)
-            put(COL_IS_COMPLETED, if (task.isCompleted) 1 else 0)
-            put(COL_IS_HISTORY, if (task.isHistory) 1 else 0)
+    // Get active tasks (where is_history = 0)
+    fun getActiveTasks(): ArrayList<Task> {
+        val taskList = ArrayList<Task>()
+        val db = this.readableDatabase
+
+        val selectQuery = "SELECT * FROM $TABLE_TASKS WHERE $COLUMN_IS_HISTORY = 0"
+        val cursor: Cursor = db.rawQuery(selectQuery, null)
+
+        if (cursor.moveToFirst()) {
+            do {
+                val task = getTaskFromCursor(cursor)
+                taskList.add(task)
+            } while (cursor.moveToNext())
         }
-        db.update(TABLE_TASKS, values, "$COL_ID = ?", arrayOf(task.id.toString()))
-    }
 
-    // Memindahkan tugas ke histori (update isHistory menjadi 1)
-    fun moveToHistory(taskId: Int) {
-        val db = writableDatabase
-        val values = ContentValues().apply {
-            put(COL_IS_HISTORY, 1)
-        }
-        db.update(TABLE_TASKS, values, "$COL_ID = ?", arrayOf(taskId.toString()))
-    }
-
-    // Mendapatkan semua tugas yang belum dipindahkan ke histori (isHistory = 0)
-    @SuppressLint("Range")
-    fun getActiveTasks(): List<Task> {
-        val db = readableDatabase
-        val cursor: Cursor = db.query(
-            TABLE_TASKS,
-            arrayOf(COL_ID, COL_DESCRIPTION, COL_DATE, COL_TIME, COL_CATEGORY, COL_IS_COMPLETED, COL_IS_HISTORY),
-            "$COL_IS_HISTORY = ?",
-            arrayOf("0"),  // Hanya tugas yang belum dipindahkan ke histori
-            null, null, null
-        )
-
-        val taskList = mutableListOf<Task>()
-        cursor.use {
-            while (it.moveToNext()) {
-                val id = it.getInt(it.getColumnIndex(COL_ID))
-                val description = it.getString(it.getColumnIndex(COL_DESCRIPTION))
-                val date = it.getString(it.getColumnIndex(COL_DATE))
-                val time = it.getString(it.getColumnIndex(COL_TIME))
-                val category = it.getString(it.getColumnIndex(COL_CATEGORY))
-                val isCompleted = it.getInt(it.getColumnIndex(COL_IS_COMPLETED)) == 1
-                val isHistory = it.getInt(it.getColumnIndex(COL_IS_HISTORY)) == 1
-
-                taskList.add(Task(id, description, date, time, category, isCompleted, isHistory))
-            }
-        }
+        cursor.close()
+        db.close()
         return taskList
     }
 
-    // Mendapatkan semua tugas yang sudah dipindahkan ke histori (isHistory = 1)
-    @SuppressLint("Range")
-    fun getHistoryTasks(): List<Task> {
-        val db = readableDatabase
-        val cursor: Cursor = db.query(
-            TABLE_TASKS,
-            arrayOf(COL_ID, COL_DESCRIPTION, COL_DATE, COL_TIME, COL_CATEGORY, COL_IS_COMPLETED, COL_IS_HISTORY),
-            "$COL_IS_HISTORY = ?",
-            arrayOf("1"),  // Hanya tugas yang sudah dipindahkan ke histori
-            null, null, null
-        )
+    // Get historical tasks (where is_history = 1)
+    fun getHistoricalTasks(): ArrayList<Task> {
+        val taskList = ArrayList<Task>()
+        val db = this.readableDatabase
 
-        val taskList = mutableListOf<Task>()
-        cursor.use {
-            while (it.moveToNext()) {
-                val id = it.getInt(it.getColumnIndex(COL_ID))
-                val description = it.getString(it.getColumnIndex(COL_DESCRIPTION))
-                val date = it.getString(it.getColumnIndex(COL_DATE))
-                val time = it.getString(it.getColumnIndex(COL_TIME))
-                val category = it.getString(it.getColumnIndex(COL_CATEGORY))
-                val isCompleted = it.getInt(it.getColumnIndex(COL_IS_COMPLETED)) == 1
-                val isHistory = it.getInt(it.getColumnIndex(COL_IS_HISTORY)) == 1
+        val selectQuery = "SELECT * FROM $TABLE_TASKS WHERE $COLUMN_IS_HISTORY = 1"
+        val cursor: Cursor = db.rawQuery(selectQuery, null)
 
-                taskList.add(Task(id, description, date, time, category, isCompleted, isHistory))
-            }
+        if (cursor.moveToFirst()) {
+            do {
+                val task = getTaskFromCursor(cursor)
+                taskList.add(task)
+            } while (cursor.moveToNext())
         }
+
+        cursor.close()
+        db.close()
         return taskList
     }
 
-    // Mengambil tugas berdasarkan ID
-    @SuppressLint("Range")
-    fun getTaskById(taskId: Int): Task {
-        val db = readableDatabase
-        val cursor: Cursor = db.query(
-            TABLE_TASKS,
-            arrayOf(COL_ID, COL_DESCRIPTION, COL_DATE, COL_TIME, COL_CATEGORY, COL_IS_COMPLETED, COL_IS_HISTORY),
-            "$COL_ID = ?",
-            arrayOf(taskId.toString()),
-            null, null, null
+    // Update task
+    fun updateTask(task: Task): Int {
+        val db = this.writableDatabase
+        val values = ContentValues()
+
+        values.put(COLUMN_DESCRIPTION, task.description)
+        values.put(COLUMN_DATE, task.date)
+        values.put(COLUMN_TIME, task.time)
+        values.put(COLUMN_CATEGORY, task.category)
+        values.put(COLUMN_IS_COMPLETED, if (task.isCompleted) 1 else 0)
+        values.put(COLUMN_IS_HISTORY, if (task.isHistory) 1 else 0)
+
+        return db.update(TABLE_TASKS, values, "$COLUMN_ID = ?", arrayOf(task.id.toString()))
+    }
+
+    // Delete task
+    fun deleteTask(taskId: Int): Int {
+        val db = this.writableDatabase
+        return db.delete(TABLE_TASKS, "$COLUMN_ID = ?", arrayOf(taskId.toString()))
+    }
+
+    // Move task to history (set is_history = 1)
+    fun moveToHistory(taskId: Int): Int {
+        val db = this.writableDatabase
+        val values = ContentValues()
+
+        values.put(COLUMN_IS_HISTORY, 1)
+
+        return db.update(TABLE_TASKS, values, "$COLUMN_ID = ?", arrayOf(taskId.toString()))
+    }
+
+    // Get a specific task by ID
+    fun getTaskById(taskId: Int): Task? {
+        if (taskId <= 0) {
+            Log.e("DatabaseHelper", "Invalid task ID: $taskId")
+            return null
+        }
+
+        val db = this.readableDatabase
+        val cursor = db.query(
+            TABLE_TASKS, arrayOf(
+                COLUMN_ID, COLUMN_DESCRIPTION, COLUMN_DATE, COLUMN_TIME, COLUMN_CATEGORY,
+                COLUMN_IS_COMPLETED, COLUMN_IS_HISTORY
+            ),
+            "$COLUMN_ID = ?", arrayOf(taskId.toString()), null, null, null
         )
 
-        cursor?.let {
-            if (cursor.moveToFirst()) {
-                val id = cursor.getInt(cursor.getColumnIndex(COL_ID))
-                val description = cursor.getString(cursor.getColumnIndex(COL_DESCRIPTION))
-                val date = cursor.getString(cursor.getColumnIndex(COL_DATE))
-                val time = cursor.getString(cursor.getColumnIndex(COL_TIME))
-                val category = cursor.getString(cursor.getColumnIndex(COL_CATEGORY))
-                val isCompleted = cursor.getInt(cursor.getColumnIndex(COL_IS_COMPLETED)) == 1
-                val isHistory = cursor.getInt(cursor.getColumnIndex(COL_IS_HISTORY)) == 1
-
-                return Task(id, description, date, time, category, isCompleted, isHistory)
-            }
+        if (cursor != null && cursor.moveToFirst()) {
+            val task = getTaskFromCursor(cursor)
+            cursor.close()
+            db.close()
+            return task
         }
-        return Task(0, "", "", "", "", false, false)  // Mengembalikan task kosong jika tidak ditemukan
+
+        cursor?.close()
+        db.close()
+        return null
     }
 
-    // Fungsi untuk menghapus task (jika diperlukan)
-    fun deleteTask(taskId: Int) {
-        val db = writableDatabase
-        db.delete(TABLE_TASKS, "$COL_ID = ?", arrayOf(taskId.toString()))
+    // Helper function to get Task from Cursor
+    private fun getTaskFromCursor(cursor: Cursor): Task {
+        // Mengambil indeks kolom
+        val columnIndexId = cursor.getColumnIndex(COLUMN_ID)
+        val columnIndexDescription = cursor.getColumnIndex(COLUMN_DESCRIPTION)
+        val columnIndexDate = cursor.getColumnIndex(COLUMN_DATE)
+        val columnIndexTime = cursor.getColumnIndex(COLUMN_TIME)
+        val columnIndexCategory = cursor.getColumnIndex(COLUMN_CATEGORY)
+        val columnIndexIsCompleted = cursor.getColumnIndex(COLUMN_IS_COMPLETED)
+        val columnIndexIsHistory = cursor.getColumnIndex(COLUMN_IS_HISTORY)
+
+        // Cek apakah kolom ditemukan di dalam cursor
+        if (columnIndexId == -1 || columnIndexDescription == -1 || columnIndexDate == -1 ||
+            columnIndexTime == -1 || columnIndexCategory == -1 || columnIndexIsCompleted == -1 ||
+            columnIndexIsHistory == -1) {
+            Log.e("DatabaseHelper", "Beberapa kolom tidak ditemukan dalam query result")
+            throw Exception("Database column missing")
+        }
+
+        // Pastikan semua kolom ditemukan dan ambil data dari cursor
+        return Task(
+            id = cursor.getInt(columnIndexId),  // Ambil ID sebagai integer
+            description = cursor.getString(columnIndexDescription),  // Ambil description sebagai String
+            date = cursor.getString(columnIndexDate),  // Ambil date sebagai String
+            time = cursor.getString(columnIndexTime),  // Ambil time sebagai String
+            category = cursor.getString(columnIndexCategory),  // Ambil category sebagai String
+            isCompleted = cursor.getInt(columnIndexIsCompleted) == 1,  // Status selesai sebagai boolean
+            isHistory = cursor.getInt(columnIndexIsHistory) == 1  // Status sejarah sebagai boolean
+        )
     }
+
 }

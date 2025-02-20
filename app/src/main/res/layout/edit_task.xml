@@ -5,48 +5,43 @@
     android:orientation="vertical"
     android:padding="16dp">
 
-    <!-- Deskripsi Task -->
+    <!-- Deskripsi Tugas -->
     <EditText
         android:id="@+id/descriptionEditText"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="Deskripsi Tugas"
-        android:inputType="text"
-        android:minHeight="48dp" />
+        android:inputType="text" />
 
-    <!-- Spinner Kategori -->
-    <Spinner
-        android:id="@+id/categorySpinner"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:minHeight="48dp" />
-
-    <!-- Tanggal -->
+    <!-- Tanggal Tugas -->
     <EditText
         android:id="@+id/dateEditText"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:clickable="true"
+        android:hint="Tanggal"
         android:focusable="false"
-        android:hint="Pilih Tanggal"
-        android:inputType="none"
-        android:minHeight="48dp" />
+        android:clickable="true"/>
 
-    <!-- Waktu -->
+    <!-- Waktu Tugas -->
     <EditText
         android:id="@+id/timeEditText"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:clickable="true"
+        android:hint="Waktu"
         android:focusable="false"
-        android:hint="Pilih Waktu"
-        android:inputType="none"
-        android:minHeight="48dp" />
+        android:clickable="true"/>
 
-    <!-- Tombol Simpan -->
+    <!-- Spinner untuk kategori -->
+    <Spinner
+        android:id="@+id/categorySpinner"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+    <!-- Button untuk menyimpan tugas -->
     <Button
         android:id="@+id/saveButton"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Simpan" />
+
 </LinearLayout>

@@ -1,6 +1,7 @@
 package com.example.ukk_armando
 
 import android.os.Bundle
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -21,32 +22,47 @@ class HistoryActivity : AppCompatActivity() {
         // Inisialisasi RecyclerView
         recyclerView = findViewById(R.id.historyRecyclerView)
 
-        // Inisialisasi adapter dengan memberikan context dan historyList
+        // Inisialisasi adapter dengan hanya menampilkan daftar histori (tanpa fitur edit, hapus, selesai)
         historyAdapter = TaskAdapter(
             this,
             historyList,
             onTaskClicked = { task ->
-                // Placeholder jika task diklik
+                // Tidak ada aksi karena tidak ada fitur edit di HistoryActivity
             },
             onTaskDeleted = { task ->
-                // Placeholder jika task dihapus (misalnya dari histori)
+                onTaskDeleted(task) // Memanggil fungsi onTaskDeleted untuk menghapus task
             },
-            onTaskCompleted = { task ->
-                // Placeholder jika task diselesaikan (tidak ada aksi karena sudah dipindahkan ke histori)
+            onTaskEdited = { task ->
+                // Tidak ada aksi edit di HistoryActivity
             }
         )
 
         recyclerView.layoutManager = LinearLayoutManager(this)
         recyclerView.adapter = historyAdapter
 
-        // Memuat histori tugas
+        // Load data histori tugas dari database
         loadHistory()
     }
 
     private fun loadHistory() {
-        // Mengambil tugas yang sudah dipindahkan ke histori (isHistory = 1)
         historyList.clear()
-        historyList.addAll(dbHelper.getHistoryTasks())
-        historyAdapter.notifyDataSetChanged()
+        // Ambil histori dari database dan tambahkan ke list
+        historyList.addAll(dbHelper.getHistoricalTasks())
+        historyAdapter.notifyDataSetChanged()  // Update RecyclerView dengan data histori
+    }
+
+    private fun onTaskDeleted(task: Task) {
+        // Menghapus task dari database
+        val deletedRows = dbHelper.deleteTask(task.id)
+
+        if (deletedRows > 0) {
+            // Menghapus task dari list yang ditampilkan di RecyclerView
+            historyList.remove(task)
+
+            // Mengupdate RecyclerView untuk merefleksikan perubahan
+            historyAdapter.notifyDataSetChanged()
+
+            Toast.makeText(this, "Task berhasil dihapus", Toast.LENGTH_SHORT).show()
+        }
     }
 }

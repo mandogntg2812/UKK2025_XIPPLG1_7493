@@ -1,6 +1,8 @@
 package com.example.ukk_armando
 
+import android.content.Intent
 import android.os.Bundle
+import android.widget.Button
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -12,6 +14,7 @@ class TaskListActivity : AppCompatActivity() {
     private lateinit var taskAdapter: TaskAdapter
     private var taskList = ArrayList<Task>()
     private lateinit var dbHelper: DatabaseHelper
+    private lateinit var completeButton: Button
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -19,45 +22,66 @@ class TaskListActivity : AppCompatActivity() {
 
         dbHelper = DatabaseHelper(this)
 
-        // Inisialisasi RecyclerView
+        // Menyambungkan komponen UI dengan variabel
         recyclerView = findViewById(R.id.taskRecyclerView)
+        completeButton = findViewById(R.id.completeButton)
 
-        // Inisialisasi adapter dengan memberikan context dan taskList
+        // Inisialisasi TaskAdapter
         taskAdapter = TaskAdapter(
             this,
             taskList,
             onTaskClicked = { task ->
-                // Placeholder jika task diklik
+                // Placeholder jika task diklik (bisa membuka activity edit)
+                Toast.makeText(this, "Task clicked: ${task.description}", Toast.LENGTH_SHORT).show()
             },
             onTaskDeleted = { task ->
-                // Memindahkan task ke histori ketika dihapus
-                dbHelper.moveToHistory(task.id)
-                taskList.remove(task)
-                taskAdapter.notifyDataSetChanged()
-                Toast.makeText(this, "Tugas dipindahkan ke histori", Toast.LENGTH_SHORT).show()
+                // Hapus tugas dari database dan list
+                val rowsAffected = dbHelper.deleteTask(task.id)
+                if (rowsAffected > 0) {
+                    taskList.remove(task)
+                    taskAdapter.notifyDataSetChanged()  // Update UI setelah penghapusan
+                    Toast.makeText(this, "Tugas telah dihapus", Toast.LENGTH_SHORT).show()
+                } else {
+                    Toast.makeText(this, "Gagal menghapus tugas", Toast.LENGTH_SHORT).show()
+                }
             },
-            onTaskCompleted = { task ->
-                // Memperbarui status tugas menjadi selesai dan memindahkan ke histori
-                task.isCompleted = true
-                dbHelper.updateTask(task)  // Update status tugas ke selesai
-                dbHelper.moveToHistory(task.id)  // Memindahkan task ke histori
-                taskList.remove(task)
-                taskAdapter.notifyDataSetChanged()
-                Toast.makeText(this, "Tugas dipindahkan ke histori", Toast.LENGTH_SHORT).show()
+            onTaskEdited = { task ->
+                // Pindah ke Activity Edit untuk mengedit tugas
+                val intent = Intent(this, EditTaskActivity::class.java)
+                intent.putExtra("TASK_ID", task.id)  // Mengirim ID task yang akan diedit
+                startActivity(intent)
             }
         )
 
         recyclerView.layoutManager = LinearLayoutManager(this)
         recyclerView.adapter = taskAdapter
 
-        // Memuat daftar tugas aktif
+        // Menangani tombol untuk memindahkan tugas selesai ke histori
+        completeButton.setOnClickListener {
+            val selectedTasks = taskAdapter.getSelectedTasks()
+
+            // Pindahkan tugas yang dipilih ke histori
+            selectedTasks.forEach { task ->
+                val result = dbHelper.moveToHistory(task.id)
+                if (result > 0) {
+                    taskList.remove(task)  // Menghapus tugas dari daftar aktif
+                } else {
+                    Toast.makeText(this, "Gagal memindahkan tugas ${task.description}", Toast.LENGTH_SHORT).show()
+                }
+            }
+
+            taskAdapter.notifyDataSetChanged()  // Update UI setelah pemindahan
+            Toast.makeText(this, "Tugas selesai dipindahkan ke histori", Toast.LENGTH_SHORT).show()
+        }
+
+        // Memuat data tugas aktif dari database
         loadActiveTasks()
     }
 
+    // Fungsi untuk memuat tugas aktif dari database
     private fun loadActiveTasks() {
-        // Mengambil tugas yang belum dipindahkan ke histori (isHistory = 0)
         taskList.clear()
         taskList.addAll(dbHelper.getActiveTasks())  // Mengambil tugas aktif
-        taskAdapter.notifyDataSetChanged()
+        taskAdapter.updateTaskList(taskList)  // Perbarui task list pada adapter
     }
 }
