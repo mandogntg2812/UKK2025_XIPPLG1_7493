@@ -22,16 +22,14 @@ class TaskListActivity : AppCompatActivity() {
 
         dbHelper = DatabaseHelper(this)
 
-        // Menyambungkan komponen UI dengan variabel
         recyclerView = findViewById(R.id.taskRecyclerView)
         completeButton = findViewById(R.id.completeButton)
 
-        // Inisialisasi TaskAdapter
         taskAdapter = TaskAdapter(
             this,
             taskList,
             onTaskClicked = { task ->
-                // Placeholder jika task diklik (bisa membuka activity edit)
+                // Placeholder jika task diklik
                 Toast.makeText(this, "Task clicked: ${task.description}", Toast.LENGTH_SHORT).show()
             },
             onTaskDeleted = { task ->
@@ -56,29 +54,23 @@ class TaskListActivity : AppCompatActivity() {
         recyclerView.layoutManager = LinearLayoutManager(this)
         recyclerView.adapter = taskAdapter
 
-        // Menangani tombol untuk memindahkan tugas selesai ke histori
         completeButton.setOnClickListener {
             val selectedTasks = taskAdapter.getSelectedTasks()
-
-            // Pindahkan tugas yang dipilih ke histori
             selectedTasks.forEach { task ->
                 val result = dbHelper.moveToHistory(task.id)
                 if (result > 0) {
-                    taskList.remove(task)  // Menghapus tugas dari daftar aktif
+                    taskList.remove(task)
                 } else {
                     Toast.makeText(this, "Gagal memindahkan tugas ${task.description}", Toast.LENGTH_SHORT).show()
                 }
             }
-
-            taskAdapter.notifyDataSetChanged()  // Update UI setelah pemindahan
+            taskAdapter.notifyDataSetChanged()
             Toast.makeText(this, "Tugas selesai dipindahkan ke histori", Toast.LENGTH_SHORT).show()
         }
 
-        // Memuat data tugas aktif dari database
         loadActiveTasks()
     }
 
-    // Fungsi untuk memuat tugas aktif dari database
     private fun loadActiveTasks() {
         taskList.clear()
         taskList.addAll(dbHelper.getActiveTasks())  // Mengambil tugas aktif

@@ -5,7 +5,7 @@
     android:orientation="vertical"
     android:padding="16dp">
 
-    <!-- Deskripsi Tugas -->
+    <!-- Edit Text untuk Deskripsi Tugas -->
     <EditText
         android:id="@+id/descriptionEditText"
         android:layout_width="match_parent"
@@ -13,31 +13,29 @@
         android:hint="Deskripsi Tugas"
         android:inputType="text" />
 
-    <!-- Tanggal Tugas -->
+    <!-- Edit Text untuk Tanggal -->
     <EditText
         android:id="@+id/dateEditText"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="Tanggal"
-        android:focusable="false"
-        android:clickable="true"/>
+        android:inputType="date" />
 
-    <!-- Waktu Tugas -->
+    <!-- Edit Text untuk Waktu -->
     <EditText
         android:id="@+id/timeEditText"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="Waktu"
-        android:focusable="false"
-        android:clickable="true"/>
+        android:inputType="time" />
 
-    <!-- Spinner untuk kategori -->
+    <!-- Spinner untuk memilih Kategori -->
     <Spinner
         android:id="@+id/categorySpinner"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
 
-    <!-- Button untuk menyimpan tugas -->
+    <!-- Tombol untuk Menyimpan perubahan -->
     <Button
         android:id="@+id/saveButton"
         android:layout_width="match_parent"

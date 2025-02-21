@@ -3,6 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="horizontal"
+    android:background="@drawable/bgrd"
     android:padding="16dp">
 
     <CheckBox
@@ -15,6 +16,7 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_weight="1"
+        android:textColorHint="#3E2723"
         android:text="Task Description" />
 
     <Button

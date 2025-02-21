@@ -1,30 +1,32 @@
-<?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical"
-    android:padding="16dp"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@drawable/bgrd"
+    android:padding="16dp">
 
-    <ImageView
-        android:id="@+id/userProfileImageView"
-        android:layout_width="100dp"
-        android:layout_height="100dp"
-        android:src="@drawable/pp" />
-
+    <!-- Tampilkan nama pengguna -->
     <TextView
-        android:id="@+id/userNameTextView"
+        android:id="@+id/tvName"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Nama Pengguna"
-        android:textSize="18sp"
-        android:layout_marginTop="16dp" />
+        android:text="Name: "
+        android:textColorHint="#3E2723"
+        android:textSize="18sp"/>
 
+    <!-- Tampilkan email pengguna -->
     <TextView
-        android:id="@+id/userEmailTextView"
+        android:id="@+id/tvEmail"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="user@domain.com"
-        android:textSize="14sp"
-        android:layout_marginTop="8dp" />
+        android:text="Email: "
+        android:textColorHint="#3E2723"
+        android:textSize="18sp"/>
+
+    <!-- Tombol Logout -->
+    <Button
+        android:id="@+id/btnLogout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Logout"/>
 </LinearLayout>

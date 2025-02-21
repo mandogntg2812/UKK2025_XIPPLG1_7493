@@ -110,8 +110,10 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
         values.put(COLUMN_IS_COMPLETED, if (task.isCompleted) 1 else 0)
         values.put(COLUMN_IS_HISTORY, if (task.isHistory) 1 else 0)
 
+        // Mengupdate data tugas berdasarkan ID
         return db.update(TABLE_TASKS, values, "$COLUMN_ID = ?", arrayOf(task.id.toString()))
     }
+
 
     // Delete task
     fun deleteTask(taskId: Int): Int {

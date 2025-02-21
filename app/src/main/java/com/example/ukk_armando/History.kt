@@ -55,6 +55,7 @@ class HistoryActivity : AppCompatActivity() {
         // Menghapus task dari database
         val deletedRows = dbHelper.deleteTask(task.id)
 
+
         if (deletedRows > 0) {
             // Menghapus task dari list yang ditampilkan di RecyclerView
             historyList.remove(task)

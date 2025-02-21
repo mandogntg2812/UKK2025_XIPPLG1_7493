@@ -2,6 +2,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@drawable/bgrd"
     android:orientation="vertical"
     android:padding="16dp">
 
@@ -11,6 +12,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="Deskripsi Tugas"
+        android:textColorHint="#3E2723"
         android:inputType="text"
         android:minHeight="48dp" />
 
@@ -27,6 +29,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:clickable="true"
+        android:textColorHint="#3E2723"
         android:focusable="false"
         android:hint="Pilih Tanggal"
         android:inputType="none"
@@ -39,6 +42,7 @@
         android:layout_height="wrap_content"
         android:clickable="true"
         android:focusable="false"
+        android:textColorHint="#3E2723"
         android:hint="Pilih Waktu"
         android:inputType="none"
         android:minHeight="48dp" />
